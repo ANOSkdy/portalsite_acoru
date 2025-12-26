@@ -1,0 +1,76 @@
+export function Hero(props: {
+  companyName: string;
+  message: string;
+  videoSrc: string;
+  companyUrl?: string;
+}) {
+  const {
+    companyName,
+    message,
+    videoSrc,
+    companyUrl = "https://www.acoru.jp/",
+  } = props;
+
+  const lines = message
+    .split(/\r?\n/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const hasMessage = lines.length > 0;
+  const headline = hasMessage ? lines[0] : "";
+  const sub = hasMessage ? lines.slice(1).join("\n") : "";
+
+  return (
+    <section className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-black shadow-sm">
+      {/* Background video */}
+      <div className="absolute inset-0">
+        <video
+          className="h-full w-full object-cover"
+          src={videoSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
+        <div className="absolute inset-0 bg-black/10" />
+      </div>
+
+      {/* Top-right company link */}
+      <a
+        href={companyUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="absolute right-4 top-4 z-20 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium tracking-wide text-white backdrop-blur hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/60"
+        aria-label={`${companyName} 公式サイトへ移動`}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+        <span>{companyName}</span>
+        <span aria-hidden="true" className="text-white/80">
+          ↗
+        </span>
+      </a>
+
+      {/* Center content */}
+      <div className="relative flex min-h-[320px] items-center justify-center px-6 py-14 md:min-h-[460px]">
+        <div className="max-w-4xl text-center text-white">
+          {hasMessage ? (
+            <>
+              <h1 className="text-3xl font-semibold leading-tight md:text-5xl">
+                {headline}
+              </h1>
+
+              {sub ? (
+                <p className="mx-auto mt-4 whitespace-pre-wrap text-sm text-white/80 md:text-base">
+                  {sub}
+                </p>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}

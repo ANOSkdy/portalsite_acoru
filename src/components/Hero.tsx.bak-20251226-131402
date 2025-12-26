@@ -1,0 +1,27 @@
+﻿export function Hero(props: { message: string; videoSrc: string }) {
+  const { message, videoSrc } = props;
+
+  return (
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="grid md:grid-cols-2">
+        <div className="p-6">
+          <h2 className="text-2xl font-semibold">Home</h2>
+          <p className="mt-2 whitespace-pre-wrap text-slate-700">{message}</p>
+          <p className="mt-4 text-sm text-slate-500">
+            ※ 動画/文言はサンプル（AirtableのSiteSettingsで差し替え可）
+          </p>
+        </div>
+
+        <div className="bg-slate-900">
+          <video
+            className="h-full w-full object-cover"
+            src={videoSrc}
+            controls
+            muted
+            playsInline
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
