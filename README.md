@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## 概要
 
-## Getting Started
+Next.js (App Router) + Vercel 上で、領収書を Google Drive に集約し、Vercel Cron が 6 時間ごとに Gemini（Structured Outputs）で解析、Neon (Postgres) の経費台帳へ INSERT、処理済みフォルダへ移動するフローを実装しています。
 
-First, run the development server:
+## 主要なエンドポイント / 画面
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- `GET /upload` … 領収書を未処理フォルダへアップロードする UI（jpg/jpeg/pdf、複数可）
+- `POST /api/upload` … Google Drive 未処理フォルダへ保存する API
+- `GET /api/cron/process-receipts` … Vercel Cron 用の処理。Authorization: `Bearer <CRON_SECRET>` 必須
+
+## 環境変数
+
+ローカルでは `.env.local`、Vercel では Environment Variables として設定してください。改行が失われたサービスアカウント鍵は `\n` を実際の改行に戻します。
+
+```
+DATABASE_URL=postgres://...
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-3-flash-preview
+GOOGLE_SERVICE_ACCOUNT_EMAIL=...@....iam.gserviceaccount.com
+GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GDRIVE_UNPROCESSED_FOLDER_ID=...
+GDRIVE_PROCESSED_FOLDER_ID=...
+CRON_SECRET=change-me
+DEFAULT_CREDIT_ACCOUNT=普通預金
+MAX_FILES_PER_RUN=50
+MAX_FILE_BYTES=10485760
+TAX_FALLBACK_RATE=0.1
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## セットアップ
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+pnpm dev   # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 手動テスト
 
-## Learn More
+6 時間ごとの Cron 相当を手動で叩く場合:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+curl -H "Authorization: Bearer <CRON_SECRET>" http://localhost:3000/api/cron/process-receipts
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## デプロイ
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`vercel.json` により `/api/cron/process-receipts` が 6 時間おきに実行されます。GitHub へ push → Vercel Preview、main 反映で Production にデプロイされます。
