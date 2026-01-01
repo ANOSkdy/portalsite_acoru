@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import { env } from "./env";
 
@@ -19,17 +19,17 @@ export type ReceiptExtraction = z.infer<typeof receiptExtractionSchema>;
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
 const geminiResponseSchema = {
-  type: SchemaType.OBJECT,
+  type: "object",
   properties: {
-    transaction_date: { type: SchemaType.STRING, description: "YYYY-MM-DD date format" },
-    vendor: { type: SchemaType.STRING },
-    items_summary: { type: SchemaType.STRING },
-    items: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-    amount: { type: SchemaType.NUMBER },
-    tax: { type: SchemaType.NUMBER },
-    suggested_debit_account: { type: SchemaType.STRING },
-    description: { type: SchemaType.STRING },
-    memo: { type: SchemaType.STRING },
+    transaction_date: { type: "string", description: "YYYY-MM-DD date format" },
+    vendor: { type: "string" },
+    items_summary: { type: "string" },
+    items: { type: "array", items: { type: "string" } },
+    amount: { type: "number" },
+    tax: { type: "number" },
+    suggested_debit_account: { type: "string" },
+    description: { type: "string" },
+    memo: { type: "string" },
   },
   required: [
     "transaction_date",
