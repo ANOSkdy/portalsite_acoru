@@ -1,7 +1,9 @@
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon } from "@neondatabase/serverless";
 import { env } from "./env";
 
-let sqlClient: NeonQueryFunction<any[]> | null = null;
+type NeonClient = ReturnType<typeof neon>;
+
+let sqlClient: NeonClient | null = null;
 
 function getClient() {
   if (!sqlClient) {
