@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const fileEntries = formData.getAll("files").filter(isFileEntry);
     const fallback = formData.get("file");
-    if (isFileEntry(fallback)) fileEntries.push(fallback);
+    if (fallback && isFileEntry(fallback)) fileEntries.push(fallback);
 
     if (!fileEntries.length) {
       return NextResponse.json({ ok: false, error: "ファイルが指定されていません。" }, { status: 400 });
