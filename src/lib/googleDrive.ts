@@ -44,12 +44,19 @@ export class DriveOperationError extends Error {
 }
 
 function parseDriveError(error: unknown): DriveErrorPayload & { message: string } {
-  const err = error as { response?: { status?: number; data?: { error?: { errors?: unknown; code?: string; message?: string } } }; code?: string; message?: string };
+  const err = error as {
+    response?: { status?: number; data?: { error?: { errors?: unknown; code?: string | number; message?: string } } };
+    code?: string | number;
+    message?: string;
+  };
   const apiError = err?.response?.data?.error;
+  const statusCandidate = err?.response?.status ?? apiError?.code;
+  const status = typeof statusCandidate === "number" ? statusCandidate : undefined;
+
   return {
-    status: err?.response?.status ?? apiError?.code,
+    status,
     errors: apiError?.errors,
-    code: err?.code ?? apiError?.code,
+    code: typeof err?.code === "string" ? err.code : typeof apiError?.code === "string" ? apiError.code : undefined,
     message: apiError?.message ?? err?.message ?? "Drive API error",
   };
 }
