@@ -65,7 +65,7 @@ export const env: Env = validationResult.success ? validationResult.data : fallb
 
 export function ensureEnv() {
   if (envValidationError) {
-    const missing = envValidationError.errors.map((e) => e.path.join(".")).join(", ");
+    const missing = envValidationError.issues.map((e) => e.path.join(".")).join(", ");
     throw new Error(`Missing or invalid env values: ${missing || envValidationError.message}`);
   }
 }
