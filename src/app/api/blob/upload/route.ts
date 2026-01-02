@@ -43,7 +43,10 @@ export async function POST(request: Request) {
         });
       },
     });
-    return response as Response;
+    if (response instanceof Response) {
+      return response;
+    }
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Blob upload handler error", error);
     const envError = getEnvErrorMessage();
