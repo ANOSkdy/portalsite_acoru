@@ -1,5 +1,5 @@
 import { ALLOWED_MIME_TYPES, env, ensureEnv, getEnvErrorMessage } from "@/lib/env";
-import { handleUpload } from "@vercel/blob/client";
+import { handleUpload } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   try {
     ensureEnv();
 
-    return handleUpload(request, {
+    const response = await handleUpload(request, {
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         if (!pathname.startsWith("unprocessed/")) {
           throw new Error("pathname must start with unprocessed/");
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
         });
       },
     });
+    return response as Response;
   } catch (error) {
     console.error("Blob upload handler error", error);
     const envError = getEnvErrorMessage();
