@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/genai";
+import { GoogleAI } from "@google/genai";
 import { z } from "zod";
 import { env } from "./env";
 
@@ -16,7 +16,7 @@ export const receiptExtractionSchema = z.object({
 
 export type ReceiptExtraction = z.infer<typeof receiptExtractionSchema>;
 
-const genAI = new GoogleGenerativeAI({ apiKey: env.GEMINI_API_KEY });
+const genAI = new GoogleAI({ apiKey: env.GEMINI_API_KEY });
 
 const geminiResponseSchema = {
   type: "object",
