@@ -67,7 +67,7 @@ export async function insertExpenseLedger(entry: ExpenseLedgerInsert) {
   const sql = getClient();
   const geminiJson = entry.gemini_response === undefined ? null : JSON.stringify(entry.gemini_response);
 
-  const rows = await sql<ExpenseLedgerRow>`
+  const rows = await sql`
     insert into expense_ledger (
       transaction_date,
       debit_account,
