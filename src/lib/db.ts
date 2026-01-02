@@ -5,7 +5,7 @@ type SqlTagged = (strings: TemplateStringsArray, ...values: any[]) => Promise<an
 
 let sqlClient: SqlTagged | null = null;
 
-function normalizeRows<T>(result: any): T[] {
+export function normalizeRows<T>(result: any): T[] {
   if (Array.isArray(result)) return result as T[];
   if (result && typeof result === "object" && "rows" in result && Array.isArray((result as any).rows)) {
     return (result as { rows: T[] }).rows;
