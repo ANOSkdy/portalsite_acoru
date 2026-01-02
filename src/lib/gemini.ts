@@ -64,7 +64,6 @@ async function callGeminiOnce(buffer: Buffer, mimeType: string, retry: boolean) 
     model: env.GEMINI_MODEL,
     generationConfig: {
       responseMimeType: "application/json",
-      responseSchema: geminiResponseSchema,
     },
   });
 
