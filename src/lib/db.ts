@@ -56,9 +56,9 @@ export type ReceiptProcessingErrorInsert = {
   stack_trace?: string;
 };
 
-export async function isDriveFileProcessed(driveFileId: string) {
+export async function isBlobPathProcessed(pathname: string) {
   const sql = getClient();
-  const rows = await sql`select 1 from expense_ledger where drive_file_id = ${driveFileId} limit 1`;
+  const rows = await sql`select 1 from expense_ledger where drive_file_id = ${pathname} limit 1`;
   const arr = normalizeRows(rows);
   return arr.length > 0;
 }

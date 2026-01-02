@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/genai";
 import { z } from "zod";
 import { env } from "./env";
 
@@ -16,7 +16,7 @@ export const receiptExtractionSchema = z.object({
 
 export type ReceiptExtraction = z.infer<typeof receiptExtractionSchema>;
 
-const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI({ apiKey: env.GEMINI_API_KEY });
 
 const geminiResponseSchema = {
   type: "object",
@@ -83,7 +83,11 @@ async function callGeminiOnce(buffer: Buffer, mimeType: string, retry: boolean) 
     ],
   });
 
-  return result.response.text();
+  const text = result.response?.text();
+  if (!text) {
+    throw new Error("Gemini response is empty");
+  }
+  return text;
 }
 
 export async function analyzeReceipt(params: { buffer: Buffer; mimeType: string; fileName?: string }) {

@@ -17,7 +17,7 @@ export default async function UploadPage() {
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold">領収書アップロード</h1>
           <p className="text-sm text-slate-600">
-            JPEG / PDF の領収書を Google Drive の「未処理」フォルダに送信します。Gemini が6時間ごとに解析し、Neonへ登録します。
+            JPEG / PDF の領収書を Vercel Blob の「未処理」キューに直接送信します。Gemini が6時間ごとに解析し、Neonへ登録します。
           </p>
         </div>
 
@@ -26,9 +26,9 @@ export default async function UploadPage() {
         <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
           <p className="font-semibold text-slate-700">処理フロー</p>
           <ol className="mt-2 list-decimal space-y-1 pl-4">
-            <li>アップロードすると Drive「未処理」フォルダに入ります。</li>
+            <li>アップロードすると Blob の unprocessed/ 以下に入ります。</li>
             <li>Vercel Cron が6時間ごとに Gemini 解析 → Neon へINSERT。</li>
-            <li>処理完了すると Drive「処理済み」フォルダへ移動します。</li>
+            <li>処理完了すると Blob の processed/ 以下へ移動します。</li>
           </ol>
         </div>
       </main>
