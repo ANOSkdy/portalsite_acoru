@@ -13,7 +13,8 @@ export async function POST(request: Request) {
   try {
     ensureEnv();
 
-    const response = await handleUpload(request, {
+    const response = await handleUpload({
+      request,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         if (!pathname.startsWith("unprocessed/")) {
           throw new Error("pathname must start with unprocessed/");
@@ -43,10 +44,7 @@ export async function POST(request: Request) {
         });
       },
     });
-    if (response instanceof Response) {
-      return response;
-    }
-    return NextResponse.json(response);
+    return response;
   } catch (error) {
     console.error("Blob upload handler error", error);
     const envError = getEnvErrorMessage();
