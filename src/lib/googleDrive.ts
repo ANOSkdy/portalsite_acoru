@@ -1,5 +1,4 @@
 import { google, type drive_v3 } from "googleapis";
-import { Readable } from "stream";
 import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, ensureEnv, env } from "./env";
 
 let driveClient: drive_v3.Drive | null = null;
@@ -26,31 +25,6 @@ export type DriveFileSummary = {
   createdTime?: string;
   parents?: string[];
 };
-
-export async function uploadToUnprocessedFolder(file: File) {
-  const drive = getDriveClient();
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const mimeType = file.type || "application/octet-stream";
-
-  const { data } = await drive.files.create({
-    requestBody: {
-      name: file.name,
-      parents: [env.GDRIVE_UNPROCESSED_FOLDER_ID],
-      mimeType,
-    },
-    media: {
-      mimeType,
-      body: Readable.from(buffer),
-    },
-    fields: "id,name,mimeType",
-  });
-
-  return {
-    id: data.id as string,
-    name: (data.name as string) ?? file.name,
-    mimeType: (data.mimeType as string) ?? mimeType,
-  };
-}
 
 export async function listUnprocessedFiles(limit: number) {
   const drive = getDriveClient();
