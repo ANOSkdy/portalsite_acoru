@@ -12,7 +12,7 @@ export function UploadClient(props: { maxBytes: number }) {
   const { maxBytes } = props;
   const [files, setFiles] = useState<FileList | null>(null);
   const [results, setResults] = useState<UploadResult[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; hint?: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
@@ -21,7 +21,7 @@ export function UploadClient(props: { maxBytes: number }) {
     setResults([]);
 
     if (!files?.length) {
-      setError("ファイルを選択してください。");
+      setError({ message: "ファイルを選択してください。" });
       return;
     }
 
@@ -33,12 +33,16 @@ export function UploadClient(props: { maxBytes: number }) {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok || !data.ok) {
-        setError(data.error ?? "アップロードに失敗しました。");
+        const errorMessage =
+          data?.error?.message ?? (typeof data?.error === "string" ? data.error : "アップロードに失敗しました。");
+        setError({ message: errorMessage, hint: data?.error?.hint });
         return;
       }
       setResults(data.files ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "アップロード中にエラーが発生しました。");
+      setError({
+        message: err instanceof Error ? err.message : "アップロード中にエラーが発生しました。",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -74,8 +78,9 @@ export function UploadClient(props: { maxBytes: number }) {
       </button>
 
       {error ? (
-        <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-          {error}
+        <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 space-y-1">
+          <div>{error.message}</div>
+          {error.hint ? <div className="text-xs text-red-700">{error.hint}</div> : null}
         </div>
       ) : null}
 
