@@ -22,7 +22,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // / と /home* を保護
-  if (pathname === "/" || pathname.startsWith("/home") || pathname.startsWith("/upload")) {
+  if (pathname === "/" || pathname.startsWith("/home")) {
     if (!token) return NextResponse.redirect(new URL("/login", request.url));
 
     try {
@@ -39,5 +39,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/home/:path*", "/upload", "/login"],
+  matcher: ["/", "/home/:path*", "/login"],
 };

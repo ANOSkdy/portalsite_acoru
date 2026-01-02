@@ -2,12 +2,6 @@
 
 Next.js (App Router) + Vercel 上で、領収書を Google Drive に集約し、Vercel Cron が 6 時間ごとに Gemini（Structured Outputs）で解析、Neon (Postgres) の経費台帳へ INSERT、処理済みフォルダへ移動するフローを実装しています。
 
-## 主要なエンドポイント / 画面
-
-- `GET /upload` … 領収書を未処理フォルダへアップロードする UI（jpg/jpeg/pdf、複数可）
-- `POST /api/upload` … Google Drive 未処理フォルダへ保存する API
-- `GET /api/cron/process-receipts` … Vercel Cron 用の処理。Authorization: `Bearer <CRON_SECRET>` 必須
-
 ## 環境変数
 
 ローカルでは `.env.local`、Vercel では Environment Variables として設定してください。改行が失われたサービスアカウント鍵は `\n` を実際の改行に戻します。
