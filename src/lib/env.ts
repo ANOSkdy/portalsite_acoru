@@ -70,5 +70,11 @@ export function ensureEnv() {
   }
 }
 
+export function getEnvErrorMessage() {
+  if (!envValidationError) return "";
+  const missing = envValidationError.issues.map((e) => e.path.join(".")).join(", ");
+  return missing || envValidationError.message;
+}
+
 export const ALLOWED_MIME_TYPES = ["image/jpeg", "application/pdf"];
 export const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "pdf"];

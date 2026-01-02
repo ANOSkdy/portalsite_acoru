@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, env, ensureEnv } from "@/lib/env";
+import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, env, ensureEnv, getEnvErrorMessage } from "@/lib/env";
 import { uploadToUnprocessedFolder } from "@/lib/googleDrive";
 
 export const runtime = "nodejs";
@@ -46,6 +46,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, files: uploads });
   } catch (error) {
     console.error("Upload error", error);
-    return NextResponse.json({ ok: false, error: "アップロードに失敗しました。" }, { status: 500 });
+    const envError = getEnvErrorMessage();
+    const message =
+      envError && error instanceof Error && error.message.includes("Missing or invalid env values")
+        ? `環境変数が不足しています: ${envError}`
+        : "アップロードに失敗しました。";
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

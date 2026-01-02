@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { decideDebitAccount, findAccountRuleMatch } from "@/lib/accountRules";
-import { env, ensureEnv } from "@/lib/env";
+import { env, ensureEnv, getEnvErrorMessage } from "@/lib/env";
 import { analyzeReceipt } from "@/lib/gemini";
 import {
   downloadFile,
@@ -22,31 +22,32 @@ const DEFAULT_INVOICE_CATEGORY = "課税仕入";
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function GET(request: Request) {
-  ensureEnv();
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-  }
-
-  const locked = await acquireCronLock();
-  if (!locked) {
-    return NextResponse.json({ ok: false, error: "Locked" }, { status: 423 });
-  }
-
-  const summary = {
-    total: 0,
-    processed: 0,
-    movedToProcessed: 0,
-    skippedExisting: 0,
-    skippedUnsupported: 0,
-    errors: 0,
-  };
-
   try {
-    const files = await listUnprocessedFiles(env.MAX_FILES_PER_RUN);
+    ensureEnv();
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
+      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
 
-    for (const file of files) {
-      summary.total += 1;
+    const locked = await acquireCronLock();
+    if (!locked) {
+      return NextResponse.json({ ok: false, error: "Locked" }, { status: 423 });
+    }
+
+    const summary = {
+      total: 0,
+      processed: 0,
+      movedToProcessed: 0,
+      skippedExisting: 0,
+      skippedUnsupported: 0,
+      errors: 0,
+    };
+
+    try {
+      const files = await listUnprocessedFiles(env.MAX_FILES_PER_RUN);
+
+      for (const file of files) {
+        summary.total += 1;
 
       try {
         if (!isSupportedFile(file)) {
@@ -142,8 +143,16 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.json({ ok: true, summary });
-  } finally {
-    await releaseCronLock();
+      return NextResponse.json({ ok: true, summary });
+    } finally {
+      await releaseCronLock();
+    }
+  } catch (error) {
+    const envError = getEnvErrorMessage();
+    const message =
+      envError && error instanceof Error && error.message.includes("Missing or invalid env values")
+        ? `環境変数が不足しています: ${envError}`
+        : "Internal error";
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
