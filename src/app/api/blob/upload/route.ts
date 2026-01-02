@@ -14,6 +14,7 @@ export async function POST(request: Request) {
     ensureEnv();
 
     const response = await handleUpload({
+      body: request.body,
       request,
       onBeforeGenerateToken: async (pathname, clientPayload, _multipart) => {
         if (!pathname.startsWith("unprocessed/")) {
