@@ -1,9 +1,9 @@
 import { neon } from "@neondatabase/serverless";
 import { env } from "./env";
 
-type NeonClient = ReturnType<typeof neon>;
+type SqlTagged = (strings: TemplateStringsArray, ...values: any[]) => Promise<any>;
 
-let sqlClient: NeonClient | null = null;
+let sqlClient: SqlTagged | null = null;
 
 function normalizeRows<T>(result: any): T[] {
   if (Array.isArray(result)) return result as T[];
@@ -15,7 +15,7 @@ function normalizeRows<T>(result: any): T[] {
 
 function getClient() {
   if (!sqlClient) {
-    sqlClient = neon(env.DATABASE_URL);
+    sqlClient = neon(env.DATABASE_URL) as unknown as SqlTagged;
   }
   return sqlClient;
 }
