@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     const response = await handleUpload({
       request,
-      onBeforeGenerateToken: async (pathname, clientPayload) => {
+      onBeforeGenerateToken: async (pathname, clientPayload, _multipart) => {
         if (!pathname.startsWith("unprocessed/")) {
           throw new Error("pathname must start with unprocessed/");
         }
@@ -32,15 +32,25 @@ export async function POST(request: Request) {
           allowedContentTypes: ALLOWED_MIME_TYPES,
           maximumSizeInBytes: env.MAX_FILE_BYTES,
           addRandomSuffix: true,
-          tokenPayload: parsed.success ? parsed.data : undefined,
+          tokenPayload: parsed.success ? JSON.stringify(parsed.data) : clientPayload,
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
+        let originalName: string | undefined;
+        if (typeof tokenPayload === "string") {
+          try {
+            const parsed = clientPayloadSchema.safeParse(JSON.parse(tokenPayload));
+            if (parsed.success) originalName = parsed.data.originalName;
+          } catch {
+            // ignore parse errors
+          }
+        }
+
         console.log("[blob.upload.completed]", {
           pathname: blob.pathname,
           size: blob.size,
           uploadedAt: blob.uploadedAt,
-          originalName: (tokenPayload as { originalName?: string } | undefined)?.originalName,
+          originalName,
         });
       },
     });
