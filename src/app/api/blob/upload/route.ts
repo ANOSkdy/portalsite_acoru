@@ -1,5 +1,5 @@
 import { ALLOWED_MIME_TYPES, env, ensureEnv, getEnvErrorMessage } from "@/lib/env";
-import { handleUpload } from "@vercel/blob/server";
+import { handleUpload } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
