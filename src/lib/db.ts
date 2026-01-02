@@ -5,6 +5,14 @@ type NeonClient = ReturnType<typeof neon>;
 
 let sqlClient: NeonClient | null = null;
 
+function normalizeRows<T>(result: any): T[] {
+  if (Array.isArray(result)) return result as T[];
+  if (result && typeof result === "object" && "rows" in result && Array.isArray((result as any).rows)) {
+    return (result as { rows: T[] }).rows;
+  }
+  return [];
+}
+
 function getClient() {
   if (!sqlClient) {
     sqlClient = neon(env.DATABASE_URL);
@@ -51,7 +59,8 @@ export type ReceiptProcessingErrorInsert = {
 export async function isDriveFileProcessed(driveFileId: string) {
   const sql = getClient();
   const rows = await sql`select 1 from expense_ledger where drive_file_id = ${driveFileId} limit 1`;
-  return rows.length > 0;
+  const arr = normalizeRows(rows);
+  return arr.length > 0;
 }
 
 export async function insertExpenseLedger(entry: ExpenseLedgerInsert) {
@@ -99,7 +108,8 @@ export async function insertExpenseLedger(entry: ExpenseLedgerInsert) {
     returning *
   `;
 
-  return rows[0];
+  const arr = normalizeRows<ExpenseLedgerRow>(rows);
+  return arr[0];
 }
 
 export async function insertProcessingError(entry: ReceiptProcessingErrorInsert) {
