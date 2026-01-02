@@ -1,12 +1,13 @@
 import { google, type drive_v3 } from "googleapis";
 import { Readable } from "stream";
-import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, env } from "./env";
+import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, ensureEnv, env } from "./env";
 
 let driveClient: drive_v3.Drive | null = null;
 
 function getDriveClient() {
   if (driveClient) return driveClient;
 
+  ensureEnv();
   const auth = new google.auth.JWT({
     email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     key: env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,

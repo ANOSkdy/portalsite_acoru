@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, env } from "@/lib/env";
+import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, env, ensureEnv } from "@/lib/env";
 import { uploadToUnprocessedFolder } from "@/lib/googleDrive";
 
 export const runtime = "nodejs";
@@ -10,6 +10,7 @@ function isFileEntry(value: FormDataEntryValue): value is File {
 
 export async function POST(request: Request) {
   try {
+    ensureEnv();
     const formData = await request.formData();
     const fileEntries = formData.getAll("files").filter(isFileEntry);
     const fallback = formData.get("file");

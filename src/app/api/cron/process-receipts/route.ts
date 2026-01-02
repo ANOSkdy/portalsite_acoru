@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { decideDebitAccount, findAccountRuleMatch } from "@/lib/accountRules";
-import { env } from "@/lib/env";
+import { env, ensureEnv } from "@/lib/env";
 import { analyzeReceipt } from "@/lib/gemini";
 import {
   downloadFile,
@@ -22,6 +22,7 @@ const DEFAULT_INVOICE_CATEGORY = "課税仕入";
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function GET(request: Request) {
+  ensureEnv();
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
